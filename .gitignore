@@ -1,0 +1,11 @@
+# App compiled
+dist
+jest.envVars.js
+
+# Development tools
+node_modules
+.idea
+
+# Do not ignore these files
+#!src/**/*
+#!tests/**/*
