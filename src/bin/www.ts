@@ -3,8 +3,6 @@
 /**
  * Module dependencies.
  */
-
-import 'module-alias/register';
 import app from "../app";
 
 const debug = require('debug')('node-express-ts-api:server');
