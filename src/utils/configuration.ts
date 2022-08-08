@@ -20,7 +20,6 @@ export const validateConfig = () => {
     if (
         !db.username || db.username === "username" ||
         !db.password || db.password === "password" ||
-        !db.name || db.name === "node-express-ts" ||
         !db.host || db.host === "host"
     ) {
         return false;

@@ -8,7 +8,7 @@ import {dbDebug} from './debuggers';
 const sqlConfig = {
     user: config.db.username,
     password: config.db.password,
-    database: "AppTemplateDb",
+    database: config.db.name,
     server: config.db.host,
     pool: {
         max: 10,
