@@ -7,9 +7,10 @@ import path from "path";
 process.env["NODE_CONFIG_DIR"] = path.resolve(__dirname, "config");
 
 
-import {debug} from "./startup/debuggers";
+import {dbDebug, debug} from "./startup/debuggers";
 import routesLoader from "./startup/routes";
 import createDbConnection from "./startup/database";
+
 import {validateConfig} from "./utils/configuration";
 
 const app = express();
@@ -31,7 +32,6 @@ routesLoader(app);
 
 // Create database connection pool
 createDbConnection(app);
-
 
 
 export default app;
