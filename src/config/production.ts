@@ -8,7 +8,8 @@ module.exports = {
         "username": "username",
         "password": "password",
         "name": "express-ts",
-        "host": "host"
+        "host": "host",
+        "trust-server-certificate": true
     },
     "jwt-secret": "Do not tell any body.",
     "jwt-exp": "1h",

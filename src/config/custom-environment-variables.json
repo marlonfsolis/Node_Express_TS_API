@@ -1,0 +1,9 @@
+{
+    "db": {
+        "username": "node_express_ts_api_username",
+        "password": "node_express_ts_api_password",
+        "host": "node_express_ts_api_host",
+        "trust-server-certificate": "node_express_ts_api_trust-server-certificate"
+    },
+    "jwt-secret": "node_express_ts_api_jwt_secret"
+}
