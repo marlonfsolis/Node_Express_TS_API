@@ -1,7 +1,7 @@
 import {Express} from "express";
 
 import {dbDebug} from './debuggers';
-import * as db from "../shared/database";
+import db from "../shared/Database";
 
 
 const createDbConnection = (app: Express) => {

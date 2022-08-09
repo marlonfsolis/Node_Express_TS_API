@@ -1,4 +1,4 @@
-import * as db from "../shared/database";
+import db from "../shared/Database";
 import {IPermission} from "../models/Permission";
 import {IRecordSet} from "mssql";
 
