@@ -1,23 +1,28 @@
-import sql from "mssql";
-
 import {IResult} from "../shared/Result";
-import {Err} from "../shared/Err";
-import * as db from "../shared/database";
+import {IPermission} from "../models/Permission";
+import * as permRepo from "../repositorys/permissionRepository";
+import {Err, IErr} from "../shared/Err";
 
 
 /**
  * Save a permission object
  */
-export const getPermissions = async (): Promise<IResult> => {
+export const getPermissions = async (): Promise<IResult<IPermission[]>> => {
     try {
-        const pool = await db.getDbConnection();
-        const result = await pool.query("select * from Permission");
-        console.dir(result);
-
+        const permissions = await permRepo.getPermissions();
+        return {
+            success: true,
+            data: permissions
+        } as IResult<IPermission[]>;
     } catch (err) {
         console.log(err);
+        return {
+            success: false,
+            data: [],
+            err: {
+                msg: "Error - Something bad happen. - " + JSON.stringify(err),
+                location: "permissionService.getPermissions"
+            } as IErr
+        } as IResult<IPermission[]>;
     }
-
-
-    return {} as IResult;
 }

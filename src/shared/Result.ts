@@ -1,8 +1,8 @@
 import {IErr} from "./Err";
 
-export interface IResult {
+export interface IResult<T> {
     success: boolean;
-    status?: number;
+    data: T;
     err?: IErr;
     [key: string]: any;
 }
