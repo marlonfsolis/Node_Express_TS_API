@@ -14,6 +14,7 @@ export const getPermissions = async (): Promise<IResult<IPermission[]>> => {
             success: true,
             data: permissions
         } as IResult<IPermission[]>;
+
     } catch (err) {
         console.log(err);
         return {
