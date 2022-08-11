@@ -1,11 +1,10 @@
 USE [AppTemplateDb]
 GO
-/****** Object:  StoredProcedure [dbo].[Permisson_ReadList]    Script Date: 8/10/2022 6:15:22 AM ******/
+/****** Object:  StoredProcedure [dbo].[Permission_ReadList]    Script Date: 8/10/2022 8:27:00 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-
 -- =============================================
 -- Author: Marlon Fernandez
 -- Create date: 2022-08-09
@@ -13,7 +12,7 @@ GO
 -- Updates:
 -- Developer Name - Date - Description of the update
 -- =============================================
-create PROCEDURE [dbo].[Permission_ReadList]
+ALTER PROCEDURE [dbo].[sp_Permission_ReadList]
 	@offsetRows INT = 0,
     @fetchRows INT = 10,
 	@filterJson VARCHAR(MAX),
@@ -22,14 +21,14 @@ create PROCEDURE [dbo].[Permission_ReadList]
 	@errorLogId INT = 0 OUTPUT
 AS
 BEGIN TRY
-	---- Test Data
+	-- Test Data
 	--DECLARE @offsetRows INT = 0
 	--	   ,@fetchRows INT = 10
 	--	   ,@filterJson VARCHAR(MAX) = '{
-	--			"priority": "4"
+	--			"name": "Permission1"
 	--	   }'
 	--	   ,@searchJson VARCHAR(MAX) = '{
-	--			"title": "%1%"
+	--			"name": "%1%"
 	--	   }'
 	--	   ,@errorCode INT = 0
 	--	   ,@errorLogId INT = 0
@@ -85,11 +84,12 @@ BEGIN TRY
 	/* END PRE-VALIDATION SECTION */
 	--------------------------------
 
+	SET @errorCode = 0
 
 	-- Fetch all rows
 	IF @fetchRows = 0
 	BEGIN
-        	SELECT @fetchRows = COUNT(1) FROM Permission p
+        SELECT @fetchRows = COUNT(1) FROM Permission p
     END
 
 
@@ -97,7 +97,7 @@ BEGIN TRY
 	DECLARE @name_filter VARCHAR(500)
 		   ,@description_filter VARCHAR(1000)
    SELECT
-	   @name_filter = JSON_VALUE(@filterJson, '$.title')
+	   @name_filter = JSON_VALUE(@filterJson, '$.name')
 	  ,@description_filter = JSON_VALUE(@filterJson, '$.description')
 
 
@@ -105,7 +105,7 @@ BEGIN TRY
 	DECLARE @name_search VARCHAR(500)
 		   ,@description_search VARCHAR(1000)
    SELECT
-	   @name_search = JSON_VALUE(@searchJson, '$.title')
+	   @name_search = JSON_VALUE(@searchJson, '$.name')
 	  ,@description_search = JSON_VALUE(@searchJson, '$.description')
 
 
@@ -140,20 +140,20 @@ BEGIN CATCH
 	+ ' - MSG: ' + ERROR_MESSAGE()
 
 
-	---- Write Error logs kept through SP
-	--INSERT INTO ErrorLog (ErrorMessage, ErrorDetail, StackTrace, ErrorDate)
-	--	VALUES (@errorMsg, '', '', GETDATE())
+	-- Write Error logs kept through SP
+	INSERT INTO ErrorLog (ErrorMessage, ErrorDetail, StackTrace, ErrorDate)
+		VALUES (@errorMsg, '', '', GETDATE())
 
-	--SELECT @errorLogId = SCOPE_IDENTITY()
-	--INSERT INTO ErrorLogTrace (ErrorLogId, TraceMessage, TraceDate)
-	--	SELECT
-	--		@errorLogId
-	--	   ,LogMessage
-	--	   ,LogDate
-	--	FROM @LogMessage
+	SELECT @errorLogId = SCOPE_IDENTITY()
+	INSERT INTO ErrorLogTrace (ErrorLogId, TraceMessage, TraceDate)
+		SELECT
+			@errorLogId
+		   ,LogMessage
+		   ,LogDate
+		FROM @LogMessage
 
-	---- Set @errorCode to 1 to return failure to UI
-	--IF @errorCode = 0
-	--	SET @errorCode = 1;
+	-- Set @errorCode to 1 to return failure to UI
+	IF @errorCode = 0
+		SET @errorCode = 1;
 
 END CATCH
