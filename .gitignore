@@ -1,10 +1,11 @@
 # App compiled
-dist
+Node_Express_TS_Api_Server/dist
 jest.envVars.js
 
 # Development tools
 node_modules
 .idea
+Node_Express_TS_Api_DB/.vs
 
 # Do not ignore these files
 #!src/**/*
