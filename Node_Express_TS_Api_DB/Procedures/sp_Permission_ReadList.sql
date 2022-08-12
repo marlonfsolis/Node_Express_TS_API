@@ -17,8 +17,7 @@ ALTER PROCEDURE [dbo].[sp_Permission_ReadList]
     @fetchRows INT = 10,
 	@filterJson VARCHAR(MAX),
 	@searchJson VARCHAR(MAX),
-	@errorCode INT = 0 OUTPUT,
-	@errorLogId INT = 0 OUTPUT
+	@outInfo VARCHAR(MAX) OUTPUT -- Json format { msg: "Hello" }
 AS
 BEGIN TRY
 	-- Test Data
@@ -30,29 +29,36 @@ BEGIN TRY
 	--	   ,@searchJson VARCHAR(MAX) = '{
 	--			"name": "%1%"
 	--	   }'
-	--	   ,@errorCode INT = 0
-	--	   ,@errorLogId INT = 0
+	--	   ,@outInfo VARCHAR(MAX) -- OUTPUT
 
 
 	SET NOCOUNT ON
-	SET @errorCode = 0
-	SET @errorLogId = 0
+
 
 	-- Local variables
 	DECLARE @ProcedureName VARCHAR(100) = 'Permisson_ReadList'
 	DECLARE @LogMessage TABLE(LogMessage VARCHAR(MAX), LogDate DATETIME)
-	DECLARE @ErrorMsg VARCHAR(500)
 	DECLARE @LocalTranStarted bit = 0
+	DECLARE @ErrorMsg VARCHAR(500)
+		   ,@ErrorLogId INT = 0
+
+	-- Output information setup
+	DECLARE @Info TABLE (
+		success BIT,
+		errorLogId INT,
+		msg VARCHAR(MAX)
+	)
+	INSERT INTO @Info (success, errorLogId, msg) VALUES (1, 0, '')
+	SET @outInfo = (SELECT success,errorLogId,msg FROM @Info FOR JSON PATH)
 
     INSERT INTO @LogMessage VALUES (@ProcedureName+' START', GETDATE())
 
-	INSERT INTO @LogMessage VALUES ('ParameterList:' +
-									'@offset: ' + ISNULL(CAST(@offsetRows AS VARCHAR), 'NULL') + ' || ' +
-									'@limit: ' + ISNULL(CAST(@fetchRows AS VARCHAR), 'NULL') + ' || ' +
-									'@filterJson: ' + ISNULL(CAST(@filterJson AS VARCHAR), 'NULL') + ' || ' +
-									'@searchJson: ' + ISNULL(CAST(@searchJson AS VARCHAR), 'NULL') + ' || ' +
-									'ProfileId: ' + ISNULL(CAST(0 AS VARCHAR), 'NULL')
-									, GETDATE())
+	INSERT INTO @LogMessage VALUES ('ParameterList:', GETDATE())
+	INSERT INTO @LogMessage VALUES ('@fetchRows: ' + ISNULL(CAST(@offsetRows AS VARCHAR), 'NULL'), GETDATE())
+	INSERT INTO @LogMessage VALUES ('@fetchRows: ' + ISNULL(CAST(@fetchRows AS VARCHAR), 'NULL'), GETDATE())
+	INSERT INTO @LogMessage VALUES ('@filterJson: ' + ISNULL(CAST(@filterJson AS VARCHAR), 'NULL'), GETDATE())
+	INSERT INTO @LogMessage VALUES ('@searchJson: ' + ISNULL(CAST(@searchJson AS VARCHAR), 'NULL'), GETDATE())
+	INSERT INTO @LogMessage VALUES ('@ProfileId: ' + ISNULL(CAST(0 AS VARCHAR), 'NULL'), GETDATE())
 
 
 	----------------------------
@@ -60,31 +66,28 @@ BEGIN TRY
 	----------------------------
 
 	INSERT INTO @LogMessage VALUES ('[PRE-VAL] START', GETDATE());
-	SET @errorCode = 2
 
 	IF @offsetRows < 0
 		OR @fetchRows < 0
 	BEGIN
-		;THROW 51000, 'The params offsetRows and fetchRows cannot be negative.', 1;
+		;THROW 51000, 'The params offsetRows and fetchRows cannot be negative.', 1
 	END
 
 	IF ISNULL(@filterJson,'') != ''
 		AND ISJSON(@filterJson) = 0
 	BEGIN
-		;THROW 51000, 'The filterJson param is not a valid JSON.', 1;
+		;THROW 51000, 'The filterJson param is not a valid JSON.', 1
 	END
 
 	IF ISNULL(@searchJson,'') != ''
 		AND ISJSON(@searchJson) = 0
 	BEGIN
-		;THROW 51000, 'The searchJson param is not a valid JSON.' , 1;
+		;THROW 51000, 'The searchJson param is not a valid JSON.', 1
     END
 
 	--------------------------------
 	/* END PRE-VALIDATION SECTION */
 	--------------------------------
-
-	SET @errorCode = 0
 
 	-- Fetch all rows
 	IF @fetchRows = 0
@@ -142,18 +145,18 @@ BEGIN CATCH
 
 	-- Write Error logs kept through SP
 	INSERT INTO ErrorLog (ErrorMessage, ErrorDetail, StackTrace, ErrorDate)
-		VALUES (@errorMsg, '', '', GETDATE())
+		VALUES (@ErrorMsg, '', '', GETDATE())
 
-	SELECT @errorLogId = SCOPE_IDENTITY()
+	SELECT @ErrorLogId = SCOPE_IDENTITY()
 	INSERT INTO ErrorLogTrace (ErrorLogId, TraceMessage, TraceDate)
 		SELECT
-			@errorLogId
+			@ErrorLogId
 		   ,LogMessage
 		   ,LogDate
 		FROM @LogMessage
 
-	-- Set @errorCode to 1 to return failure to UI
-	IF @errorCode = 0
-		SET @errorCode = 1;
+	-- Set @Success to 0 to return failure to UI
+	UPDATE @Info SET success = 0, errorLogId = @ErrorLogId, msg = @ErrorMsg
+	SET @outInfo = (SELECT success, errorLogId, msg FROM @Info FOR JSON PATH)
 
 END CATCH

@@ -1,4 +1,4 @@
-import {IResult} from "../shared/Result";
+import {IResult, ResultError} from "../shared/Result";
 import {IPermission} from "../models/Permission";
 import * as permRepo from "../repositorys/permissionRepository";
 import {Err, IErr} from "../shared/Err";
@@ -9,21 +9,16 @@ import {Err, IErr} from "../shared/Err";
  */
 export const getPermissions = async (): Promise<IResult<IPermission[]>> => {
     try {
-        const permissions = await permRepo.getPermissions();
-        return {
-            success: true,
-            data: permissions
-        } as IResult<IPermission[]>;
+
+        return await permRepo.getPermissions();
 
     } catch (err) {
         console.log(err);
-        return {
-            success: false,
-            data: [],
-            err: {
-                msg: "Error - Something bad happen. - " + JSON.stringify(err),
-                location: "permissionService.getPermissions"
-            } as IErr
-        } as IResult<IPermission[]>;
+        return new ResultError(
+            new Err(
+                `Error - Something bad happen. ${JSON.stringify(err)}`,
+                `permissionService.getPermissions`
+            )
+        );
     }
 }
