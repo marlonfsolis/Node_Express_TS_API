@@ -1,19 +1,6 @@
-# This is a basic workflow to help you get started with Actions
+# .github/workflows/sql-workflow.yml
+on: [push]
 
-name: sql-server-dev
-
-# Controls when the workflow will run
-on:
-  # Triggers the workflow on push or pull request events but only for the "master" branch
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# Jobs to deploy DACPAC file
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -22,5 +9,4 @@ jobs:
     - uses: azure/sql-action@v1.3
       with:        
         connection-string: ${{ secrets.SQL_CONN_STRING_DEV }}
-        project-file: "./AppTemplateDb.dacpac"
-
+        dacpac-package: './AppTemplateDb.dacpac'
