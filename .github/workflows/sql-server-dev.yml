@@ -13,19 +13,14 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+# Jobs to deploy DACPAC file
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Deploy the DACPAC file
-      - uses: actions/checkout@v1
-      - uses: actions/checkout@v3
-        with:
-          connection-string: "Server=MARLON-PC\\SQLEXPRESS;User ID=webuser;Password=Oz4Hp45cGNeUowG;Initial Catalog=AppTemplateDb"
-          dacpac-package: './Node_Express_TS_Api_DB/DACPACs/AppTemplateDb.dacpac'
+    - uses: actions/checkout@v1
+    - uses: azure/sql-action@v1.3
+      with:        
+        connection-string: ${{ secrets.SQL_CONN_STRING_DEV }}
+        project-file: './Node_Express_TS_Api_DB/DACPACs/AppTemplateDb.dacpac'
 
