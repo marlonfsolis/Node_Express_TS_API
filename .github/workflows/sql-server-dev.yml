@@ -22,5 +22,5 @@ jobs:
     - uses: azure/sql-action@v1.3
       with:        
         connection-string: ${{ secrets.SQL_CONN_STRING_DEV }}
-        project-file: "./Node_Express_TS_Api_DB/DACPACs/AppTemplateDb.dacpac"
+        project-file: "./AppTemplateDb.dacpac"
 
